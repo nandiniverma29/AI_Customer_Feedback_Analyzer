@@ -1,4 +1,4 @@
-from gemini_helper import analyze_review
+from groq_helper import analyze_review
 import streamlit as st
 import joblib
 import re
