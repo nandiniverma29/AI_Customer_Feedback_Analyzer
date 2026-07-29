@@ -1,0 +1,32 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+ENV/
+Lib/
+Include/
+Scripts/
+share/
+etc/
+pyvenv.cfg
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+
+# Model files (if very large)
+*.joblib
+
+# OS files
+.DS_Store
+Thumbs.db
