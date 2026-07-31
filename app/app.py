@@ -1,4 +1,5 @@
 from groq_helper import analyze_review
+from pathlib import Path
 import streamlit as st
 import joblib
 import re
@@ -6,6 +7,18 @@ import re
 model = joblib.load("model/sentiment_model.joblib")
 tfidf = joblib.load("model/tfidf_vectorizer.joblib")
 
+def load_css():
+    css_path = Path(__file__).parent / "style.css"
+
+    css = css_path.read_text()
+
+    st.markdown(
+        f"<style>{css}</style>",
+        unsafe_allow_html=True
+    )
+
+
+load_css()
 
 def clean_text(text):
     text = text.lower()
@@ -17,7 +30,7 @@ def clean_text(text):
     )
 
     text = re.sub(
-        '\s+',
+        r'\s+',
         ' ',
         text
     )
@@ -25,16 +38,29 @@ def clean_text(text):
     return text
 
 
-st.title("AI Customer Feedback Analyzer")
+st.markdown("""
+<div class="badge">
+    <span>✨ AI Powered • Machine Learning • Sentiment Analysis</span>
+</div>
 
-st.write(
-    "Analyze customer reviews using Machine Learning"
-)
+<h1 class="main-title">
+AI Customer Feedback Analyzer
+</h1>
 
+""", unsafe_allow_html=True)
+
+
+st.markdown("""
+<div class="card">
+    <h3>📝 Enter Customer Review</h3>
+""", unsafe_allow_html=True)
 
 review = st.text_area(
-    "Enter Customer Review"
+    "",
+    placeholder="Type or paste the customer review here..."
 )
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 
 if st.button("Analyze"):
@@ -55,42 +81,62 @@ if st.button("Analyze"):
     confidence = max(probability) * 100
 
 
-    if confidence < 60:
-        sentiment = "Mixed / Uncertain Sentiment ⚖️"
-
-    elif prediction == 1:
-        sentiment = "Positive Feedback 😊"
+    if prediction == 1:
+        sentiment = "Positive 😊"
 
     else:
-        sentiment = "Negative Feedback 😞"
+        sentiment = "Negative 😞"
 
 
-    # Display result
-    st.subheader("Analysis Result")
-
-    st.write(
-        f"**Sentiment:** {sentiment}"
+    st.markdown(
+        '<h2 class="results-heading">📊 Analysis Results</h2>',
+        unsafe_allow_html=True
     )
 
-    st.write(
-        f"**Positive Probability:** {positive_probability:.2f}%"
-    )
+    col1, col2, col3 = st.columns(3)
 
-    st.write(
-        f"**Negative Probability:** {negative_probability:.2f}%"
-    )
+    with col1:
+        st.markdown(f"""
+        <div class="metric-card">
+        <div class="metric-icon">😊</div>
+        <div class="metric-value">{sentiment}</div>
+        <div class="metric-label">Sentiment</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.write(
-        f"**Model Confidence:** {confidence:.2f}%"
-    )
+    with col2:
+        st.markdown(f"""
+        <div class="metric-card">
+        <div class="metric-icon">🎯</div>
+        <div class="metric-value">{confidence:.1f}%</div>
+        <div class="metric-label">Model Confidence</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown(f"""
+        <div class="metric-card">
+        <div class="metric-icon">📈</div>
+        <div class="metric-value">{positive_probability:.1f}%</div>
+        <div class="metric-label">Positive Probability</div>
+        </div>
+        """, unsafe_allow_html=True)
     st.divider()
 
-    st.subheader("🤖 AI Analysis")
+    with st.spinner("🤖 Generating AI insights..."):
+        ai_response = analyze_review(review, sentiment)
 
-    with st.spinner("Generating AI insights..."):
-        ai_response = analyze_review(
-            review,
-            sentiment
-            )
+    formatted_response = ai_response.replace("\n", "<br>")
 
-    st.write(ai_response)
+    st.markdown(f"""
+    <div class="ai-box">
+    <div class="ai-header">
+        🤖 AI Insights
+    </div>
+
+    <div class="ai-response-text">
+        {formatted_response}
+    </div>
+
+    </div>
+    """, unsafe_allow_html=True)
